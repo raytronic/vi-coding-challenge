@@ -44,13 +44,21 @@ export default class PokemonGrid extends LitElement {
             .sidebar {
                 background-color: #eee;
                 box-shadow: 1px 1px 3px;
-                height: 400px;
+                
                 min-width: 180px;
                 max-width: 180px;
                 border-radius: 3px;
             }
             .main {
                 display: flex;
+            }
+            
+            .filter{
+            
+            }
+
+            .sidecont{
+            margin-left: 1em;
             }
         `
     ];
@@ -96,11 +104,14 @@ export default class PokemonGrid extends LitElement {
         return html`
             <div class="main">
                 <div class="sidebar">
+                <div class="sidecont">
+                
                     <h3>Pokemon List</h3>
                     <p>Filter by type</p>
                     <div class="filter">
                         ${['grass', 'poison', 'fire', 'flying', 'water', 'bug', 'normal', 'electric', 'fairy', 'ground', 'fighting', 'psychic', 'rock', 'ghost', 'dragon', 'ice'].map(
                             type => html`
+                                <p>
                                 <label>
                                     <input
                                         type="checkbox"
@@ -109,9 +120,12 @@ export default class PokemonGrid extends LitElement {
                                     />
                                     ${type.charAt(0).toUpperCase() + type.slice(1)}
                                 </label>
+
+                                </p>
                             `
                         )}
                     </div>
+                </div>
                 </div>
                 <div class="container">
                     ${this.filteredPokemonList.map(
