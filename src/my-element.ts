@@ -6,6 +6,7 @@ export default class PokemonGrid extends LitElement {
     @property({ type: Array }) pokemonList = [];
     @property({ type: Array }) filteredPokemonList = [];
     @property({ type: Array }) selectedTypes = [];
+    @property({ type: String }) headerTitle = 'Pokemon Grid';
 
     static styles = [
         css`
@@ -102,6 +103,7 @@ export default class PokemonGrid extends LitElement {
 
     render() {
         return html`
+            <h1 contenteditable="true" @input="${this.handleHeaderInput}">${this.headerTitle}</h1>
             <div class="main">
                 <div class="sidebar">
                 <div class="sidecont">
@@ -144,5 +146,8 @@ export default class PokemonGrid extends LitElement {
                 </div>
             </div>
         `;
+    }
+    handleHeaderInput(event) {
+        this.headerTitle = event.target.innerText;
     }
 }
