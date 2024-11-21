@@ -22,4 +22,6 @@ export const Default: StoryObj = {
   args: {
     headerTitle: 'Pokemon Grid', // Editable header title in Storybook
   },
+
+  
 };

@@ -67,37 +67,60 @@ export default class PokemonGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this.fetchPokemon();
+        this.typeToPokemonMap = new Map(); // Precompute mapping
     }
-
+    
     async fetchPokemon() {
-        const apiUrl = 'https://pokeapi.co/api/v2/pokemon/';
+        const apiUrl = 'https://pokeapi.co/api/v2/pokemon?limit=151';
         try {
-            for (let i = 1; i < 151; i++) {
-                const res = await fetch(apiUrl + i);
-                const mydata = await res.json();
-                this.pokemonList.push(mydata);
-            }
+            const res = await fetch(apiUrl);
+            const data = await res.json();
+    
+            const pokemonDetails = await Promise.all(
+                data.results.map(async pokemon => {
+                    const res = await fetch(pokemon.url);
+                    return res.json();
+                })
+            );
+    
+            this.pokemonList = pokemonDetails;
             this.filteredPokemonList = [...this.pokemonList];
+    
+            // Precompute type-to-pokemon mapping
+            pokemonDetails.forEach(pokemon => {
+                pokemon.types.forEach(typeObj => {
+                    const type = typeObj.type.name;
+                    if (!this.typeToPokemonMap.has(type)) {
+                        this.typeToPokemonMap.set(type, []);
+                    }
+                    this.typeToPokemonMap.get(type).push(pokemon);
+                });
+            });
+    
             this.requestUpdate();
         } catch (err) {
-            console.error('Failed to fetch data:', err);
+            console.error(err);
         }
     }
-
+    
     filterByType(type: string) {
         if (this.selectedTypes.includes(type)) {
-            
             this.selectedTypes = this.selectedTypes.filter(t => t !== type);
         } else {
-            
             this.selectedTypes = [...this.selectedTypes, type];
         }
-
-        this.filteredPokemonList = this.selectedTypes.length
-            ? this.pokemonList.filter(pokemon =>
-                  pokemon.types.some(t => this.selectedTypes.includes(t.type.name))
-              )
-            : [...this.pokemonList];
+    
+        if (this.selectedTypes.length === 0) {
+            this.filteredPokemonList = [...this.pokemonList];
+        } else {
+            const combinedSet = new Set();
+            this.selectedTypes.forEach(selectedType => {
+                const pokemons = this.typeToPokemonMap.get(selectedType) || [];
+                pokemons.forEach(pokemon => combinedSet.add(pokemon));
+            });
+            this.filteredPokemonList = [...combinedSet];
+        }
+    
         this.requestUpdate();
     }
 
